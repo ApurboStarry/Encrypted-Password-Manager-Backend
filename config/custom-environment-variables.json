@@ -1,3 +1,4 @@
 {
-  "jwtPrivateKey": "encryptedPasswordManager_jwtPrivateKey"
+  "jwtPrivateKey": "encryptedPasswordManager_jwtPrivateKey",
+  "db": "encryptedPasswordManager_db"
 }
