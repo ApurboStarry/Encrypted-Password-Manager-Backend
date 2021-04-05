@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const router = express.Router();
 
-// for registering users
+// for login
 router.post("/", async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
