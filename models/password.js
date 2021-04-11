@@ -15,6 +15,10 @@ const passwordSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  folderId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Folder"
+  },
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -27,7 +31,8 @@ function validatePassword(password) {
   const schema = Joi.object({
     url: Joi.string().required(),
     username: Joi.string().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    folderId: Joi.string().required()
   });
 
   return schema.validate(password);

@@ -1,7 +1,11 @@
+const express = require("express");
+
 const { FolderPassword } = require("../models/folderPassword");
 const { Password, validate } = require("../models/password");
+const { checkFolderExistence } = require("../models/folder");
+const { User } = require("../models/user");
 const auth = require("../middlewares/auth");
-const express = require("express");
+
 const router = express.Router();
 
 router.get("/", auth, async (req, res) => {
@@ -28,6 +32,7 @@ router.get("/:id", auth, async (req, res) => {
     url: password.url,
     username: password.username,
     password: password.password,
+    folderId: password.folderId
   });
 });
 
@@ -35,10 +40,21 @@ router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
+  if(req.body.folderId === "0") {
+    const user = await User.findOne({ _id: req.user._id });
+    req.body.folderId = user.defaultFolderId;
+  }
+
+  const folder = checkFolderExistence(req.body.folderId, req.user._id);
+  if (!folder) {
+    return res.status(400).send("No folder with the given ID was found");
+  }
+
   let password = new Password({
     url: req.body.url,
     username: req.body.username,
     password: req.body.password,
+    folderId: req.body.folderId,
     ownerId: req.user._id,
   });
 
@@ -63,6 +79,7 @@ router.put("/:id", auth, async (req, res) => {
       url: req.body.url,
       username: req.body.username,
       password: req.body.password,
+      folderId: req.body.folderId
     },
     {
       new: true,

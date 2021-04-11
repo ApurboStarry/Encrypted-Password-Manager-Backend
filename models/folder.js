@@ -23,5 +23,24 @@ function validateFolder(folder) {
   return schema.validate(folder);
 }
 
+async function checkFolderExistence(folderId, ownerId) {
+  return await Folder.findOne({
+    _id: folderId,
+    ownerId: ownerId,
+  });
+}
+
+async function createDefualtFolder(ownerId) {
+  let folder = new Folder({ 
+    name: "uncategorized",
+    ownerId: ownerId
+  });
+
+  folder = await folder.save();
+  return folder._id;
+}
+
 module.exports.Folder = Folder;
 module.exports.validate = validateFolder;
+module.exports.checkFolderExistence = checkFolderExistence;
+module.exports.createDefualtFolder = createDefualtFolder;

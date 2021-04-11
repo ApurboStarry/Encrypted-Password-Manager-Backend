@@ -24,6 +24,19 @@ router.post("/", async (req, res) => {
   user.password = await bcrypt.hash(user.password, salt);
   
   await user.save();
+  const newUser = await User.findOneAndUpdate(
+    {
+      _id: user._id,
+    },
+    {
+      defaultFolderId: await user.getDefaultFolderId(),
+    },
+    {
+      new: true,
+    }
+  );
+
+  console.log(newUser);
 
   const token = user.generateAuthToken();
   

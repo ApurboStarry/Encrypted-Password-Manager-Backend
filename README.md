@@ -6,7 +6,7 @@
 |:---------:|:-------:|:------------:|:-----------:|
 |GET   |  /api/v1/passwords     | get all passwords | - |
 |GET   |  /api/v1/passwords/:id | get a password with a specific id | - |
-|POST  |  /api/v1/passwords     | create a new password | { "url": "https://rocket.com", "username": "Hasin Apurbo", "password": "Why would I tell you???", "folderId": "60687f9afe53e935b501263a" } |
+|POST  |  /api/v1/passwords     | create a new password | { "url": "https://rocket.com", "username": "Hasin Apurbo", "password": "Why would I tell you???", "folderId": "-1" } |
 |PUT   |  /api/v1/passwords/:id | update an existing password | { "url": "https://rocket.com", "username": "Hasin Apurbo", "password": "Why would I tell you???", "folderId": "60687f9afe53e935b501263a" } |
 |DELETE|  /api/v1/passwords/:id | update an existing password | - |
 
