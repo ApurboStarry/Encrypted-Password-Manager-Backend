@@ -30,4 +30,8 @@
 |PUT   |  /api/v1/folders/:id | update an existing folder | { "folderName": "certificate.pdf" } |
 |DELETE|  /api/v1/folders/:id | update an existing folder | - |
 
+### Folder Contents
+|HTTP Method| API URL | What it does | Sample Body |
+|:---------:|:-------:|:------------:|:-----------:|
+|GET   |  /api/v1/folderContents/:id | get all the passwords and files stored in the folder with ID id | - |
 ## Models
