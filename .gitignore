@@ -2,3 +2,4 @@ node_modules/
 coverage/
 environment variables.txt
 uncaughtExceptions.log
+fileUploads/

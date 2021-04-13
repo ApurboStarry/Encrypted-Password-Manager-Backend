@@ -23,7 +23,14 @@ function validateFolder(folder) {
   return schema.validate(folder);
 }
 
+function isValidObjectId(objectId) {
+  return objectId.match(/^[0-9a-fA-F]{24}$/);
+}
+
 async function checkFolderExistence(folderId, ownerId) {
+  // check if "folderId" and "ownerId" is valid object id
+  if(!isValidObjectId(folderId) || !isValidObjectId(ownerId)) return null;
+
   return await Folder.findOne({
     _id: folderId,
     ownerId: ownerId,

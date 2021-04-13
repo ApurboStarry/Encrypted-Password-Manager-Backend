@@ -38,7 +38,6 @@ async function uploadToFirebase(userId, filename) {
   // console.log("fsPromise", fsPromise);
   try {
     const snapshot = await imagesRef.put(fsPromise.buffer, metadata);
-    console.log("Snapshot", snapshot);
   } catch (error) {
     console.error(error);
   }
