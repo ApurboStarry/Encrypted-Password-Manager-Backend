@@ -1,4 +1,3 @@
-const {FolderPassword} = require("../models/folderPassword");
 const { Folder, validate } = require("../models/folder");
 const auth = require("../middlewares/auth");
 const express = require("express");
@@ -75,7 +74,6 @@ router.delete("/:id", auth, async (req, res) => {
     return res.status(404).send("No folder with the given ID was found");
   }
 
-  await FolderPassword.deleteMany({ folderId: req.params.id });
   folder = await Folder.findOneAndRemove({ _id: req.params.id });
   res.send(folder);
 });

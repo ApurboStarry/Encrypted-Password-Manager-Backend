@@ -8,6 +8,10 @@ const auth = require("../middlewares/auth");
 
 const router = express.Router();
 
+function isValidObjectId(objectId) {
+  return objectId.match(/^[0-9a-fA-F]{24}$/);
+}
+
 router.get("/", auth, async (req, res) => {
   const passwords = await Password.find({ ownerId: req.user._id })
     .sort("url")
@@ -17,7 +21,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.get("/:id", auth, async (req, res) => {
-  const isValidId = req.params.id.length == 24;
+  const isValidId = isValidObjectId(req.params.id);
   if (!isValidId) return res.status(400).send("Invalid ID");
 
   const password = await Password.findOne({
@@ -40,12 +44,7 @@ router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  if(req.body.folderId === "0") {
-    const user = await User.findOne({ _id: req.user._id });
-    req.body.folderId = user.defaultFolderId;
-  }
-
-  const folder = checkFolderExistence(req.body.folderId, req.user._id);
+  const folder = await checkFolderExistence(req.body.folderId, req.user._id);
   if (!folder) {
     return res.status(400).send("No folder with the given ID was found");
   }
@@ -67,7 +66,7 @@ router.put("/:id", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).send(error.details[0].message);
 
-  const isValidId = req.params.id.length == 24;
+  const isValidId = isValidObjectId(req.params.id);
   if (!isValidId) return res.status(400).send("Invalid ID");
 
   const password = await Password.findOneAndUpdate(
@@ -98,7 +97,7 @@ router.put("/:id", auth, async (req, res) => {
 });
 
 router.delete("/:id", auth, async (req, res) => {
-  const isValidId = req.params.id.length == 24;
+  const isValidId = isValidObjectId(req.params.id);
   if (!isValidId) return res.status(400).send("Invalid ID");
 
   let password = await Password.findOne({
@@ -109,7 +108,6 @@ router.delete("/:id", auth, async (req, res) => {
     return res.status(400).send("No password with the given ID was found");
   }
 
-  await FolderPassword.deleteMany({ passwordId: req.params.id });
   password = await Password.findOneAndRemove({ _id: req.params.id });
   res.send({
     _id: password._id,

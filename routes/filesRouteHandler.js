@@ -1,10 +1,44 @@
 const auth = require("../middlewares/auth");
 const express = require("express");
+
 const { Files, validate } = require("../models/files");
 const { checkFolderExistence } = require("../models/folder");
-const router = express.Router();
 const upload = require("../fileUploadService/multerFileHandler");
 const uploadToFirebase = require("../fileUploadService/firebaseUpload");
+
+const router = express.Router();
+
+function isValidObjectId(objectId) {
+  return objectId.match(/^[0-9a-fA-F]{24}$/);
+}
+
+router.get("/", auth, async (req, res) => {
+  const files = await Files
+                      .find({ ownerId: req.user._id })
+                      .sort("name")
+                      .select("-ownerId -__v");
+  res.send(files);
+});
+
+router.get("/:id", auth, async (req, res) => {
+  const isValidId = isValidObjectId(req.params.id);
+  if (!isValidId) return res.status(400).send("Invalid ID");
+
+  const file = await Files.findOne({
+    _id: req.params.id,
+    ownerId: req.user._id
+  });
+
+  if(!file) {
+    return res.status(404).send("No file with the given ID was found");
+  }
+
+  return res.send({
+    name: file.name,
+    location: file.location,
+    folderId: file.folderId
+  });
+});
 
 router.post("/", [auth, upload.single("image")], async (req, res) => {
   // Check if file is provided
@@ -26,9 +60,7 @@ router.post("/", [auth, upload.single("image")], async (req, res) => {
   }
 
   // Check validity of "folderId"
-  console.log("req.body.folderId", req.body.folderId);
   const folder = await checkFolderExistence(req.body.folderId, req.user._id);
-  console.log(folder);
   if(!folder) {
     return res.status(400).send("Invalid folder ID");
   }
@@ -49,6 +81,65 @@ router.post("/", [auth, upload.single("image")], async (req, res) => {
   res.send({
     _id: file._id,
     name: file.name,
+  });
+});
+
+router.put("/:id", auth, async (req, res) => {
+  const isValidId = isValidObjectId(req.params.id);
+  if (!isValidId) return res.status(400).send("Invalid ID");
+
+  if(!req.body.folderId) {
+    return res.status(400).send("No 'folderId' provided");
+  }
+
+  const folder = await checkFolderExistence(req.body.folderId, req.user._id);
+  if (!folder) {
+    return res.status(400).send("Invalid folder ID");
+  }
+
+  const file = await Files.findOneAndUpdate(
+    {
+      _id: req.params.id,
+      ownerId: req.user._id
+    }, 
+    {
+      folderId: req.body.folderId
+    }, 
+    {
+      new: true
+    }
+  );
+
+  if(!file) {
+    return res.status(400).send("No file with the given ID was found");
+  }
+
+  return res.send({
+    name: file.name,
+    location: file.location,
+    folderId: file.folderId
+  });
+});
+
+router.delete("/:id", auth, async (req, res) => {
+  const isValidId = isValidObjectId(req.params.id);
+  if (!isValidId) return res.status(400).send("Invalid ID");
+
+  let file = await Files.findOne({
+    _id: req.params.id,
+    ownerId: req.user._id
+  });
+  if(!file) {
+    return res.status(400).send("No file with the given ID was found");
+  }
+
+  file = await Files.findOneAndRemove({
+    _id: req.params.id,
+    ownerId: req.user._id
+  });
+
+  return res.send({
+    name: file.name
   });
 });
 
